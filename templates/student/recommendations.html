@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}Recommendations{% endblock %}
+
+{% block content %}
+<h4 class="mb-4"><i class="bi bi-stars me-2"></i>Recommended Books</h4>
+<p class="text-muted mb-4">Based on your reading history and preferences</p>
+
+{% if recommendations %}
+<div class="row g-3">
+    {% for book in recommendations %}
+    <div class="col-md-4 col-lg-3">
+        <div class="card book-card h-100">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="bi bi-book text-primary" style="font-size: 3rem;"></i>
+                </div>
+                <h6 class="card-title">
+                    <a href="{{ url_for('books.book_detail', book_id=book.id) }}" class="text-decoration-none">
+                        {{ book.title }}
+                    </a>
+                </h6>
+                <p class="text-muted small mb-2">by {{ book.author }}</p>
+                <span class="badge bg-info">{{ book.category }}</span>
+                {% if book.is_available %}
+                <span class="badge bg-success">Available</span>
+                {% else %}
+                <span class="badge bg-danger">Out of Stock</span>
+                {% endif %}
+                {% if book.description %}
+                <p class="small text-muted mt-2 mb-0">{{ book.description[:80] }}{{ '...' if book.description|length > 80 }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5 text-muted">
+    <i class="bi bi-stars" style="font-size: 3rem;"></i>
+    <p class="mt-2">No recommendations yet. Start borrowing books to get personalized suggestions!</p>
+    <a href="{{ url_for('books.list_books') }}" class="btn btn-primary">Browse Books</a>
+</div>
+{% endif %}
+{% endblock %}

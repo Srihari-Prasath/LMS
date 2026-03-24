@@ -1,0 +1,55 @@
+<div class="bg-dark text-white sidebar" id="sidebar-wrapper">
+    <div class="sidebar-heading p-3 border-bottom border-secondary">
+        <i class="bi bi-book-half"></i> <strong>ALMS</strong>
+        <small class="d-block text-muted">Library System</small>
+    </div>
+    <div class="list-group list-group-flush">
+        {% if current_user.is_admin %}
+        <a href="{{ url_for('admin.dashboard') }}"
+           class="list-group-item list-group-item-action bg-dark text-white {{ 'active' if request.endpoint == 'admin.dashboard' }}">
+            <i class="bi bi-speedometer2 me-2"></i> Dashboard
+        </a>
+        <a href="{{ url_for('books.list_books') }}"
+           class="list-group-item list-group-item-action bg-dark text-white {{ 'active' if request.endpoint == 'books.list_books' }}">
+            <i class="bi bi-collection me-2"></i> All Books
+        </a>
+        <a href="{{ url_for('admin.add_book') }}"
+           class="list-group-item list-group-item-action bg-dark text-white {{ 'active' if request.endpoint == 'admin.add_book' }}">
+            <i class="bi bi-plus-circle me-2"></i> Add Book
+        </a>
+        <a href="{{ url_for('admin.issue_book') }}"
+           class="list-group-item list-group-item-action bg-dark text-white {{ 'active' if request.endpoint == 'admin.issue_book' }}">
+            <i class="bi bi-arrow-right-circle me-2"></i> Issue Book
+        </a>
+        <a href="{{ url_for('admin.issued_books') }}"
+           class="list-group-item list-group-item-action bg-dark text-white {{ 'active' if request.endpoint == 'admin.issued_books' }}">
+            <i class="bi bi-journal-check me-2"></i> Issued Books
+        </a>
+        <a href="{{ url_for('admin.students') }}"
+           class="list-group-item list-group-item-action bg-dark text-white {{ 'active' if request.endpoint and request.endpoint.startswith('admin.student') }}">
+            <i class="bi bi-people me-2"></i> Students
+        </a>
+        <a href="{{ url_for('admin.analytics') }}"
+           class="list-group-item list-group-item-action bg-dark text-white {{ 'active' if request.endpoint == 'admin.analytics' }}">
+            <i class="bi bi-graph-up me-2"></i> Analytics
+        </a>
+        {% else %}
+        <a href="{{ url_for('student.dashboard') }}"
+           class="list-group-item list-group-item-action bg-dark text-white {{ 'active' if request.endpoint == 'student.dashboard' }}">
+            <i class="bi bi-speedometer2 me-2"></i> Dashboard
+        </a>
+        <a href="{{ url_for('books.list_books') }}"
+           class="list-group-item list-group-item-action bg-dark text-white {{ 'active' if request.endpoint == 'books.list_books' }}">
+            <i class="bi bi-collection me-2"></i> Browse Books
+        </a>
+        <a href="{{ url_for('student.my_books') }}"
+           class="list-group-item list-group-item-action bg-dark text-white {{ 'active' if request.endpoint == 'student.my_books' }}">
+            <i class="bi bi-journal-check me-2"></i> My Books
+        </a>
+        <a href="{{ url_for('student.recommendations') }}"
+           class="list-group-item list-group-item-action bg-dark text-white {{ 'active' if request.endpoint == 'student.recommendations' }}">
+            <i class="bi bi-stars me-2"></i> Recommendations
+        </a>
+        {% endif %}
+    </div>
+</div>

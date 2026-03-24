@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Add Book{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-plus-circle me-2"></i>Add New Book</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('admin.add_book') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label class="form-label">Book Title <span class="text-danger">*</span></label>
+                            <input type="text" name="title" class="form-control" placeholder="Enter book title" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">ISBN <span class="text-danger">*</span></label>
+                            <input type="text" name="isbn" class="form-control" placeholder="e.g. 9780134685991" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Author <span class="text-danger">*</span></label>
+                            <input type="text" name="author" class="form-control" placeholder="Author name" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Category <span class="text-danger">*</span></label>
+                            <input type="text" name="category" class="form-control" list="category-list" placeholder="e.g. Technology" required>
+                            <datalist id="category-list">
+                                {% for cat in categories %}
+                                <option value="{{ cat }}">
+                                {% endfor %}
+                            </datalist>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Quantity</label>
+                            <input type="number" name="quantity" class="form-control" value="1" min="1" max="100">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Description</label>
+                            <textarea name="description" class="form-control" rows="3" placeholder="Brief description of the book (optional)"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg me-1"></i> Add Book
+                        </button>
+                        <a href="{{ url_for('books.list_books') }}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

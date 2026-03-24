@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+{% block title %}Analytics{% endblock %}
+
+{% block content %}
+<h4 class="mb-4"><i class="bi bi-graph-up me-2"></i>Library Analytics</h4>
+
+<!-- Summary Stats -->
+<div class="row g-3 mb-4">
+    <div class="col-lg-2 col-md-4 col-sm-6">
+        <div class="card text-center stat-card primary">
+            <div class="card-body py-3">
+                <h4 class="fw-bold mb-0">{{ stats.total_books }}</h4>
+                <small class="text-muted">Titles</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-4 col-sm-6">
+        <div class="card text-center stat-card info">
+            <div class="card-body py-3">
+                <h4 class="fw-bold mb-0">{{ stats.total_copies }}</h4>
+                <small class="text-muted">Total Copies</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-4 col-sm-6">
+        <div class="card text-center stat-card success">
+            <div class="card-body py-3">
+                <h4 class="fw-bold mb-0">{{ stats.total_students }}</h4>
+                <small class="text-muted">Students</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-4 col-sm-6">
+        <div class="card text-center stat-card warning">
+            <div class="card-body py-3">
+                <h4 class="fw-bold mb-0">{{ stats.currently_issued }}</h4>
+                <small class="text-muted">Issued</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-4 col-sm-6">
+        <div class="card text-center stat-card danger">
+            <div class="card-body py-3">
+                <h4 class="fw-bold mb-0">{{ stats.overdue_count }}</h4>
+                <small class="text-muted">Overdue</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-4 col-sm-6">
+        <div class="card text-center" style="border-left: 4px solid #6f42c1;">
+            <div class="card-body py-3">
+                <h4 class="fw-bold mb-0">Rs. {{ stats.total_fines|int }}</h4>
+                <small class="text-muted">Fines Collected</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts -->
+<div class="row g-3 mb-4">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h6 class="mb-0"><i class="bi bi-bar-chart me-2"></i>Most Issued Books</h6>
+            </div>
+            <div class="card-body">
+                <canvas id="mostIssuedChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h6 class="mb-0"><i class="bi bi-pie-chart me-2"></i>Category Distribution</h6>
+            </div>
+            <div class="card-body">
+                <canvas id="categoryChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h6 class="mb-0"><i class="bi bi-graph-up-arrow me-2"></i>Monthly Issue Trends</h6>
+            </div>
+            <div class="card-body">
+                <canvas id="monthlyChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h6 class="mb-0"><i class="bi bi-people me-2"></i>Most Active Students</h6>
+            </div>
+            <div class="card-body p-0">
+                {% if active_users %}
+                <ul class="list-group list-group-flush">
+                    {% for name, count in active_users %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="bi bi-person me-2"></i>{{ name }}</span>
+                        <span class="badge bg-primary rounded-pill">{{ count }} books</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="text-center py-4 text-muted">No data yet</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+const COLORS = ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796', '#5a5c69', '#6f42c1', '#fd7e14', '#20c997'];
+
+// Most Issued Books - Bar Chart
+const issuedData = {{ most_issued | tojson }};
+if (issuedData.length > 0) {
+    new Chart(document.getElementById('mostIssuedChart'), {
+        type: 'bar',
+        data: {
+            labels: issuedData.map(d => d[0].length > 20 ? d[0].substring(0, 20) + '...' : d[0]),
+            datasets: [{
+                label: 'Times Issued',
+                data: issuedData.map(d => d[1]),
+                backgroundColor: COLORS,
+                borderRadius: 5
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } }
+        }
+    });
+}
+
+// Category Distribution - Doughnut
+const catData = {{ cat_dist | tojson }};
+if (catData.length > 0) {
+    new Chart(document.getElementById('categoryChart'), {
+        type: 'doughnut',
+        data: {
+            labels: catData.map(d => d[0]),
+            datasets: [{
+                data: catData.map(d => d[1]),
+                backgroundColor: COLORS
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'bottom' } }
+        }
+    });
+}
+
+// Monthly Trends - Line
+const monthlyData = {{ monthly | tojson }};
+if (monthlyData.length > 0) {
+    new Chart(document.getElementById('monthlyChart'), {
+        type: 'line',
+        data: {
+            labels: monthlyData.map(d => d[0]),
+            datasets: [{
+                label: 'Books Issued',
+                data: monthlyData.map(d => d[1]),
+                borderColor: '#4e73df',
+                backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+        }
+    });
+}
+</script>
+{% endblock %}

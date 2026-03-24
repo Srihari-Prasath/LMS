@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}Register{% endblock %}
+
+{% block auth_content %}
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <div class="text-center mb-4">
+            <i class="bi bi-book-half text-primary" style="font-size: 3rem;"></i>
+            <h2 class="mt-2 fw-bold">Create Account</h2>
+            <p class="text-muted">Join the ALMS Library</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('auth.register') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="mb-3">
+                <label class="form-label">Full Name</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-person"></i></span>
+                    <input type="text" name="name" class="form-control" placeholder="Enter your name" required>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Email Address</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                    <input type="email" name="email" class="form-control" placeholder="Enter your email" required>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Password</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                    <input type="password" name="password" class="form-control" placeholder="Min 6 characters" required minlength="6">
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Confirm Password</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                    <input type="password" name="confirm_password" class="form-control" placeholder="Confirm your password" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 py-2 mt-2">
+                <i class="bi bi-person-plus me-1"></i> Register
+            </button>
+        </form>
+
+        <div class="text-center mt-3">
+            <span class="text-muted">Already have an account?</span>
+            <a href="{{ url_for('auth.login') }}" class="text-decoration-none">Login here</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<h4 class="mb-4"><i class="bi bi-speedometer2 me-2"></i>Admin Dashboard</h4>
+
+<!-- Stats Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3 col-sm-6">
+        <div class="card stat-card primary">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small text-uppercase">Total Books</div>
+                        <h3 class="mb-0 fw-bold">{{ stats.total_books }}</h3>
+                    </div>
+                    <i class="bi bi-book text-primary" style="font-size: 2rem; opacity: 0.5;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="card stat-card success">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small text-uppercase">Students</div>
+                        <h3 class="mb-0 fw-bold">{{ stats.total_students }}</h3>
+                    </div>
+                    <i class="bi bi-people text-success" style="font-size: 2rem; opacity: 0.5;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="card stat-card warning">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small text-uppercase">Issued</div>
+                        <h3 class="mb-0 fw-bold">{{ stats.currently_issued }}</h3>
+                    </div>
+                    <i class="bi bi-arrow-right-circle text-warning" style="font-size: 2rem; opacity: 0.5;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="card stat-card danger">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small text-uppercase">Overdue</div>
+                        <h3 class="mb-0 fw-bold">{{ stats.overdue_count }}</h3>
+                    </div>
+                    <i class="bi bi-exclamation-triangle text-danger" style="font-size: 2rem; opacity: 0.5;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <a href="{{ url_for('admin.add_book') }}" class="btn btn-outline-primary w-100 py-3">
+            <i class="bi bi-plus-circle me-2"></i> Add New Book
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a href="{{ url_for('admin.issue_book') }}" class="btn btn-outline-success w-100 py-3">
+            <i class="bi bi-arrow-right-circle me-2"></i> Issue Book
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a href="{{ url_for('admin.analytics') }}" class="btn btn-outline-info w-100 py-3">
+            <i class="bi bi-graph-up me-2"></i> View Analytics
+        </a>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="card">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h6 class="mb-0"><i class="bi bi-clock-history me-2"></i>Recent Activity</h6>
+        <a href="{{ url_for('admin.issued_books') }}" class="btn btn-sm btn-outline-primary">View All</a>
+    </div>
+    <div class="card-body p-0">
+        {% if recent_issues %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Book</th>
+                        <th>Student</th>
+                        <th>Issue Date</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in recent_issues %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('books.book_detail', book_id=record.book.id) }}" class="text-decoration-none">
+                                {{ record.book.title }}
+                            </a>
+                        </td>
+                        <td>{{ record.user.name }}</td>
+                        <td>{{ format_date(record.issue_date) }}</td>
+                        <td>{{ format_date(record.due_date) }}</td>
+                        <td>
+                            {% if record.status == 'returned' %}
+                                <span class="badge bg-secondary">Returned</span>
+                            {% elif record.status == 'overdue' %}
+                                <span class="badge bg-danger">Overdue</span>
+                                {% if record.fine > 0 %}
+                                <span class="badge bg-warning text-dark">Rs. {{ record.fine|int }}</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="badge bg-primary">Issued</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if record.status != 'returned' %}
+                            <form method="POST" action="{{ url_for('admin.return_book', issued_id=record.id) }}" class="d-inline">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-sm btn-outline-success" onclick="return confirm('Return this book?')">
+                                    <i class="bi bi-arrow-return-left"></i> Return
+                                </button>
+                            </form>
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+            <p class="mt-2">No activity yet. Start by issuing some books!</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

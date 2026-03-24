@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}My Books{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0"><i class="bi bi-journal-check me-2"></i>My Books</h4>
+    {% if total_fine > 0 %}
+    <span class="badge bg-danger fs-6">Total Fine: Rs. {{ total_fine|int }}</span>
+    {% endif %}
+</div>
+
+<!-- Currently Issued -->
+<div class="card mb-4">
+    <div class="card-header bg-white">
+        <h6 class="mb-0"><i class="bi bi-book me-2"></i>Currently Issued ({{ issued|length }})</h6>
+    </div>
+    <div class="card-body">
+        {% if issued %}
+        <div class="row g-3">
+            {% for record in issued %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card book-card h-100 {{ 'border-danger' if record.status == 'overdue' }}">
+                    <div class="card-body">
+                        <h6>
+                            <a href="{{ url_for('books.book_detail', book_id=record.book.id) }}" class="text-decoration-none">
+                                {{ record.book.title }}
+                            </a>
+                        </h6>
+                        <small class="text-muted">by {{ record.book.author }}</small>
+                        <hr class="my-2">
+                        <div class="small">
+                            <div><i class="bi bi-calendar-plus me-1"></i>Issued: {{ format_date(record.issue_date) }}</div>
+                            <div><i class="bi bi-calendar-event me-1"></i>Due: {{ format_date(record.due_date) }}</div>
+                        </div>
+                        <div class="mt-2">
+                            {% if record.status == 'overdue' %}
+                            <span class="badge bg-danger">Overdue ({{ record.overdue_days }} days)</span>
+                            <span class="badge bg-warning text-dark">Fine: Rs. {{ record.fine|int }}</span>
+                            {% else %}
+                            <span class="badge bg-primary">{{ record.days_remaining }} days left</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-4 text-muted">
+            <p>No books currently issued.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- History -->
+<div class="card">
+    <div class="card-header bg-white">
+        <h6 class="mb-0"><i class="bi bi-clock-history me-2"></i>Reading History ({{ returned|length }})</h6>
+    </div>
+    <div class="card-body p-0">
+        {% if returned %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Book</th>
+                        <th>Author</th>
+                        <th>Issued</th>
+                        <th>Returned</th>
+                        <th>Fine</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in returned %}
+                    <tr>
+                        <td><a href="{{ url_for('books.book_detail', book_id=record.book.id) }}" class="text-decoration-none">{{ record.book.title }}</a></td>
+                        <td>{{ record.book.author }}</td>
+                        <td>{{ format_date(record.issue_date) }}</td>
+                        <td>{{ format_date(record.return_date) }}</td>
+                        <td>
+                            {% if record.fine > 0 %}
+                            <span class="text-danger">Rs. {{ record.fine|int }}</span>
+                            {% else %}
+                            <span class="text-success">None</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4 text-muted">
+            <p class="mb-0">No reading history yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

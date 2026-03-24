@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}Students{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0"><i class="bi bi-people me-2"></i>Student Management</h4>
+    <a href="{{ url_for('admin.add_student') }}" class="btn btn-primary">
+        <i class="bi bi-person-plus me-1"></i> Add Student
+    </a>
+</div>
+
+<!-- Search -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" action="{{ url_for('admin.students') }}" class="row g-2 align-items-end">
+            <div class="col-md-9">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" name="q" class="form-control" placeholder="Search by name or email..." value="{{ search }}">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-funnel me-1"></i> Search
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="mb-3 text-muted small">
+    Showing {{ student_stats|length }} student{{ 's' if student_stats|length != 1 }}
+</div>
+
+{% if student_stats %}
+<div class="row g-3">
+    {% for item in student_stats %}
+    <div class="col-md-6 col-lg-4">
+        <div class="card book-card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        <h6 class="mb-0">
+                            <a href="{{ url_for('admin.student_detail', student_id=item.student.id) }}" class="text-decoration-none">
+                                <i class="bi bi-person-circle me-1"></i>{{ item.student.name }}
+                            </a>
+                        </h6>
+                        <small class="text-muted">{{ item.student.email }}</small>
+                    </div>
+                    {% if item.overdue > 0 %}
+                    <span class="badge bg-danger">{{ item.overdue }} Overdue</span>
+                    {% elif item.issued > 0 %}
+                    <span class="badge bg-primary">{{ item.issued }} Issued</span>
+                    {% else %}
+                    <span class="badge bg-secondary">No Books</span>
+                    {% endif %}
+                </div>
+
+                <div class="row text-center mt-3 g-1">
+                    <div class="col-3">
+                        <div class="small text-muted">Issued</div>
+                        <strong class="text-primary">{{ item.issued }}</strong>
+                    </div>
+                    <div class="col-3">
+                        <div class="small text-muted">Returned</div>
+                        <strong class="text-success">{{ item.returned }}</strong>
+                    </div>
+                    <div class="col-3">
+                        <div class="small text-muted">Overdue</div>
+                        <strong class="text-danger">{{ item.overdue }}</strong>
+                    </div>
+                    <div class="col-3">
+                        <div class="small text-muted">Fine</div>
+                        <strong class="text-{{ 'danger' if item.fine > 0 else 'muted' }}">{{ item.fine|int }}</strong>
+                    </div>
+                </div>
+
+                <div class="mt-3 d-flex gap-1">
+                    <a href="{{ url_for('admin.student_detail', student_id=item.student.id) }}" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-eye me-1"></i>View
+                    </a>
+                    <a href="{{ url_for('admin.issue_book') }}?user_id={{ item.student.id }}" class="btn btn-sm btn-outline-success">
+                        <i class="bi bi-arrow-right-circle me-1"></i>Issue Book
+                    </a>
+                    <a href="{{ url_for('admin.edit_student', student_id=item.student.id) }}" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5 text-muted">
+    <i class="bi bi-people" style="font-size: 3rem;"></i>
+    <p class="mt-2">No students found.</p>
+</div>
+{% endif %}
+{% endblock %}
